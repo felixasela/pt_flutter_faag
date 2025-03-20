@@ -14,7 +14,7 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Usuarios'),
-        backgroundColor: const Color(0xFF003366),
+        backgroundColor: const Color(0xFF003366), // Azul oscuro
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -29,35 +29,49 @@ class HomeScreen extends ConsumerWidget {
           Future.microtask(() => ref.invalidate(userProvider));
         },
         child: userAsync.when(
-          data: (users) => ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              final user = users[index];
-              return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 5,
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                color: const Color(0xFF00509E),
-                child: ListTile(
-                  title: Text(
-                    user['primerNombre'],
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    'Documento: ${user['numeroDocumento']}',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.white),
-                    onPressed: () => _confirmDelete(context, ref, user),
-                  ),
-                ),
-              );
-            },
-          ),
+          data: (users) => users is List
+              ? ListView.builder(
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    final user = users[index];
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 5,
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      color: const Color(0xFF00509E), // Azul intermedio
+                      child: ListTile(
+                        title: Text(
+                          user['primerNombre'] ?? 'Sin nombre',
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          'Documento: ${user['numeroDocumento'] ?? 'N/A'}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.white),
+                              onPressed: () => _editUser(context, user),
+                            ),
+                            IconButton(
+                              icon:
+                                  const Icon(Icons.delete, color: Colors.white),
+                              onPressed: () =>
+                                  _confirmDelete(context, ref, user),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                )
+              : const Center(child: Text('No hay usuarios disponibles')),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) =>
               const Center(child: Text('Error al cargar usuarios')),
@@ -66,16 +80,21 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final result = await context.push('/add-user');
-          if (result == true) {
+          if (result != null && result == true) {
+            // 🔹 Se verifica que result no sea null antes de compararlo con true
             Future.microtask(() => ref.invalidate(userProvider));
           }
         },
         label: const Text('Registrar',
             style: TextStyle(fontWeight: FontWeight.bold)),
         icon: const Icon(Icons.add),
-        backgroundColor: const Color(0xFF007FFF),
+        backgroundColor: const Color(0xFF007FFF), // Azul claro
       ),
     );
+  }
+
+  void _editUser(BuildContext context, Map<String, dynamic> user) {
+    context.push('/edit-user', extra: user);
   }
 
   void _confirmDelete(
@@ -89,7 +108,7 @@ class HomeScreen extends ConsumerWidget {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         content: Text(
-          '¿Estás seguro de eliminar a ${user['primerNombre']}?',
+          '¿Estás seguro de eliminar a ${user['primerNombre'] ?? 'este usuario'}?',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
