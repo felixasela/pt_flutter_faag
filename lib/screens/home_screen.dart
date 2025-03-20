@@ -14,7 +14,7 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Usuarios'),
-        backgroundColor: const Color(0xFF003366), // Azul oscuro
+        backgroundColor: const Color(0xFF003366),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -41,7 +41,7 @@ class HomeScreen extends ConsumerWidget {
                       elevation: 5,
                       margin: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
-                      color: const Color(0xFF00509E), // Azul intermedio
+                      color: const Color(0xFF00509E),
                       child: ListTile(
                         title: Text(
                           user['primerNombre'] ?? 'Sin nombre',
@@ -81,14 +81,13 @@ class HomeScreen extends ConsumerWidget {
         onPressed: () async {
           final result = await context.push('/add-user');
           if (result != null && result == true) {
-            // 🔹 Se verifica que result no sea null antes de compararlo con true
             Future.microtask(() => ref.invalidate(userProvider));
           }
         },
         label: const Text('Registrar',
             style: TextStyle(fontWeight: FontWeight.bold)),
         icon: const Icon(Icons.add),
-        backgroundColor: const Color(0xFF007FFF), // Azul claro
+        backgroundColor: const Color(0xFF007FFF),
       ),
     );
   }
